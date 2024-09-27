@@ -19,7 +19,10 @@
               pip
               venvShellHook
               numpy
-              pillow
+              scipy
+              matplotlib
+              imageio
+              opencv4
             ]);
         };
       });
