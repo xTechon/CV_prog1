@@ -9,8 +9,8 @@ figure = plt.figure(figsize=(10,7))
 rows = 1
 columns = 2
 
-affineTransform = np.float32([[0, 1, 4],
-                             [1, 0, 0],
+affineTransform = np.float32([[1, 1, 4],
+                             [1, 3, 0],
                              [0, 0, 1]])
 
 i1 = iio.imread('blackSquare.png')
@@ -68,20 +68,27 @@ def bilinearInterpolation(src, matrix, x, y):
 
 # transform image given a image in src, a 2x3 matrix, and an output size
 # will use some kind of interpolation
-def imgTransform(src, matrix, outputSize):
+def imgTransform(src, matrix, outputSize=None):
+    # calculate smallest possible size needed
+    width, height, _ = src.shape
+    width, height, _ = (matrix @ [height, width, 1]).astype(int)
+    print (height, width, height * width)
+    if outputSize is not None:
+        height = outputSize[0]
+        width = outputSize[1]
     # init output values
-    output = np.zeros((outputSize[0], outputSize[1], 3), dtype=np.uint8)
+    output = np.zeros((height, width, 3), dtype=np.uint8)
 
     # itterate rows
-    for x, row in enumerate(output):
+    for y, row in enumerate(output):
         # itterate columns
-        for y, pixel in enumerate(row):
+        for x, pixel in enumerate(row):
             # Apply to new image
-            output[x, y, :] = bilinearInterpolation(src, matrix, x, y)
+            output[y, x, :] = bilinearInterpolation(src, matrix, x, y)
     return output
 
 
-out1 = imgTransform(i2, affineTransform, (4000,4000))
+out1 = imgTransform(i2, affineTransform)
 
 
 # add image to plot
