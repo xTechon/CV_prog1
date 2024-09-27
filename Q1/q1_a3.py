@@ -2,6 +2,9 @@ import numpy as np
 import imageio.v3 as iio
 import matplotlib.pyplot as plt
 import pprint
+import threading
+import concurrent.futures
+import time
 
 
 figure = plt.figure(figsize=(10,7))
@@ -16,12 +19,13 @@ affineTransform = np.float32([[1, 1, 4],
 i1 = iio.imread('blackSquare.png')
 i2 = iio.imread('face.jpg')
 
+
+#pool = concurrent.futures.ThreadPoolExecutor(max_workers=8)
+
 # for every pixel in the defined output image size
 # inverse transform onto the original image
 # get the average value of the nearest pixels around the original image
 # interpolate if needed
-
-
 def bilinearInterpolation(src, matrix, x, y):
     # dimensions of source image
     height, width, _ = src.shape
@@ -66,6 +70,9 @@ def bilinearInterpolation(src, matrix, x, y):
 
     return value
 
+def multithreadHelper(src, matrix, output, x, y):
+    output[y, x, :] = bilinearInterpolation(src, matrix, x, y)
+
 # transform image given a image in src, a 2x3 matrix, and an output size
 # will use some kind of interpolation
 def imgTransform(src, matrix, outputSize=None):
@@ -79,17 +86,21 @@ def imgTransform(src, matrix, outputSize=None):
     # init output values
     output = np.zeros((height, width, 3), dtype=np.uint8)
 
-    # itterate rows
-    for y, row in enumerate(output):
-        # itterate columns
-        for x, pixel in enumerate(row):
-            # Apply to new image
-            output[y, x, :] = bilinearInterpolation(src, matrix, x, y)
+    # make multithreaded
+    with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
+        # itterate rows
+        for y, row in enumerate(output):
+            # itterate columns
+            for x, pixel in enumerate(row):
+                # Apply to new image
+                #output[y, x, :] = bilinearInterpolation(src, matrix, x, y)
+                executor.submit(multithreadHelper, src, matrix, output, x, y)
+        print("done submitting workers")
     return output
 
-
-out1 = imgTransform(i2, affineTransform)
-
+start_time = time.time()
+out1 = imgTransform(i1, affineTransform)
+print(time.time() - start_time, " seconds")
 
 # add image to plot
 
