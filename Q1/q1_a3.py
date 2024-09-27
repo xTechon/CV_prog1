@@ -9,37 +9,82 @@ figure = plt.figure(figsize=(10,7))
 rows = 1
 columns = 2
 
-affineTransform = np.float32([[1, 1, 4],
-                            [1, 3, 0],
-                            [0, 0, 1]])
-transformTest = np.array([[1, 0, 4],
-                            [0, 1, 0],
-                            [0, 0, 1]])
+affineTransform = np.float32([[0, 1, 4],
+                             [1, 0, 0],
+                             [0, 0, 1]])
 
 i1 = iio.imread('blackSquare.png')
-#i2 = iio.imread('face.jpg')
+i2 = iio.imread('face.jpg')
+
+# for every pixel in the defined output image size
+# inverse transform onto the original image
+# get the average value of the nearest pixels around the original image
+# interpolate if needed
+
+
+def bilinearInterpolation(src, matrix, x, y):
+    # dimensions of source image
+    height, width, _ = src.shape
+
+    # take inverse of matrix
+    inverse = np.linalg.inv(matrix)
+
+    # setup the coordinate vector from output image
+    coord = np.array([x, y, 1])
+
+    # find the point in the initial image
+    xi, yi, _ = (inverse @ coord)
+
+    #print(height, width)
+    #print(coord, xi, yi)
+
+    # setup coordinates of pixels
+    x1 = np.floor(xi).astype(int)
+    x2 = np.ceil(xi).astype(int)
+    y1 = np.floor(yi).astype(int)
+    y2 = np.ceil(yi).astype(int)
+
+    # return 0 pixel value if coordinates out of bounds of initial image
+    if x2 >= width or x1 < 0 or y2 >= height or y1 < 0:
+        return (np.array([0,0,0]).astype(np.uint8))
+
+    # return if landed on valid initial coord
+    if (x1 == x2) and (y1 == y2):
+        #print (int(x1), int(y1), src[int(x1), int(y1), :])
+        return src[int(x1), int(y1), :]
+
+    # get the originial surrounding values
+    p11 = src[x1, y1, :]
+    p12 = src[x1, y2, :]
+    p21 = src[x2, y1, :]
+    p22 = src[x2, y2, :]
+
+    # weighted mean problem
+    row1 = p11 * (x2 - xi) + p21 * (xi - x1)
+    row2 = p12 * (x2 - xi) + p22 * (xi - x1)
+    value = row1 * (y2 - yi) + row2 * (yi - y1)
+
+    return value
 
 # transform image given a image in src, a 2x3 matrix, and an output size
 # will use some kind of interpolation
 def imgTransform(src, matrix, outputSize):
     # init output values
-    output = np.zeros((outputSize[1], outputSize[0], 3), dtype=np.uint8)
+    output = np.zeros((outputSize[0], outputSize[1], 3), dtype=np.uint8)
 
     # itterate rows
-    for x, row in enumerate(src):
+    for x, row in enumerate(output):
         # itterate columns
         for y, pixel in enumerate(row):
-            # coordinate in homogenous
-            coord = np.array([x, y, 1])
-            # output coordinates
-            x_out, y_out, _ = (matrix @ coord).astype(np.uint8)
-            # print (coord, x_out, y_out, pixel)
             # Apply to new image
-            output[x_out, y_out, :] = pixel
+            output[x, y, :] = bilinearInterpolation(src, matrix, x, y)
     return output
 
 
-out1 = imgTransform(i1, transformTest, (200,100))
+out1 = imgTransform(i2, affineTransform, (4000,4000))
+
+
+# add image to plot
 
 figure.add_subplot(rows, columns, 1)
 
