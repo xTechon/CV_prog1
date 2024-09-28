@@ -1,6 +1,8 @@
 # Programming Assignment 1
 William Daniel Hiromoto
+Code can be found at [Github Repo](https://github.com/xTechon/CV_prog1/tree/main)
 
+----------------------------------------------
 ## Program 1 - Affine Map
 
 We have the following affine map:
@@ -30,3 +32,19 @@ $$
     \end{matrix}
     \right ]
 $$
+
+This affine map can be converted into homogenous coordnates in 3 Dimensions to include the translation:
+
+$$
+    \left [
+    \begin{matrix}
+        1 & 1 & 4\\
+        1 & 3 & 0\\
+        0 & 0 & 1
+    \end{matrix}
+    \right ]
+$$
+
+This can then be decomposed into the following transformation matricies:
+
+Shear: $$
