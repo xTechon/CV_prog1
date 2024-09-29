@@ -3,9 +3,8 @@ import imageio.v3 as iio
 import matplotlib.pyplot as plt
 import time
 
-
+# setup figure plot
 figure = plt.figure(figsize=(10,7))
-
 rows = 2
 columns = 3
 
@@ -33,15 +32,9 @@ translation = np.float32([[1, 0, 4],
                           [0, 1, 0],
                           [0, 0, 1]])
 
-#print("combination:")
-#print((shear @ rotation @ magnification))
-
 i1 = iio.imread('blackSquare.png')
 i2 = iio.imread('face.png')
 i3 = iio.imread('rectangle.png')
-
-
-#pool = concurrent.futures.ThreadPoolExecutor(max_workers=8)
 
 # for every pixel in the defined output image size
 # inverse transform onto the original image
@@ -112,7 +105,6 @@ def imgTransform(src, matrix, outputSize=None):
 
     # init output values
     output = np.zeros((height, width, 3), dtype=np.uint8)
-    #print(output[height-1])
 
     # take inverse of matrix
     inverse = np.linalg.inv(matrix)
@@ -123,7 +115,6 @@ def imgTransform(src, matrix, outputSize=None):
         for x, pixel in enumerate(row):
             # Apply to new image
             output[y, x, :] = bilinearInterpolation(src, inverse, y, x)
-            
     return output
 
 start_time = time.time()
