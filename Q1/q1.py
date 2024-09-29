@@ -1,7 +1,6 @@
 import numpy as np
 import imageio.v3 as iio
 import matplotlib.pyplot as plt
-import pprint
 import time
 
 
@@ -127,7 +126,7 @@ def imgTransform(src, matrix, outputSize=None):
         for x, pixel in enumerate(row):
             # Apply to new image
             output[y, x, :] = bilinearInterpolation(src, inverse, y, x)
-            #output[y, x, :] = src[y, x, :]
+            
     return output
 
 start_time = time.time()
