@@ -73,16 +73,16 @@ def bilinearInterpolation(src, inverse, y, x):
 
     # only one of the dimensions is a vaild initial coord
     elif (x1 == x2):
-        value = p11 * (y2 - yi) + p12 * (yi - y1)
+        value = p11 * ((y2 - yi)/(y2 - y1)) + p12 * ((yi - y1)/(y2 - y1))
         return value
     elif (y1 == y2):
-        value = p12 * (x2 - xi) + p22 * (xi - x1)
+        value = p12 * ((x2 - xi)/(x2 - x1)) + p22 * ((xi - x1)/(x2 - x1))
         return value
 
     # weighted mean problem
-    row1 = p11 * (x2 - xi) + p21 * (xi - x1)
-    row2 = p12 * (x2 - xi) + p22 * (xi - x1)
-    value = row1 * (y2 - yi) + row2 * (yi - y1)
+    row1 = p11 * ((x2 - xi)/(x2 - x1)) + p21 * ((xi - x1)/(x2 - x1))
+    row2 = p12 * ((x2 - xi)/(x2 - x1)) + p22 * ((xi - x1)/(x2 - x1))
+    value = row1 * ((y2 - yi)/(y2 - y1)) + row2 * ((yi - y1)/(y2 - y1))
 
     return value
 
