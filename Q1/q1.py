@@ -119,12 +119,12 @@ def imgTransform(src, matrix, outputSize=None):
 
 start_time = time.time()
 
-working_img = i1
+working_img = i2
 print(working_img.shape)
 print("shear")
 out1 = imgTransform(working_img, shear)
 print("rotation")
-out2 = imgTransform(working_img, rotation, (72, 35))
+out2 = imgTransform(working_img, rotation, (355, 180))
 print("magnification")
 out3 = imgTransform(working_img, magnification)
 print("translation")
