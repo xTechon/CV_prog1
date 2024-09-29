@@ -91,7 +91,6 @@ def bilinearInterpolation(src, inverse, y, x):
     row2 = p12 * (x2 - xi) + p22 * (xi - x1)
     value = row1 * (y2 - yi) + row2 * (yi - y1)
 
-    #print(value)
     return value
 
 # transform image given a image in src, a 2x3 matrix, and an output size
@@ -99,10 +98,8 @@ def bilinearInterpolation(src, inverse, y, x):
 def imgTransform(src, matrix, outputSize=None):
     # calculate smallest possible size needed
     height, width, _ = src.shape
-    print(matrix)
-    print(src.shape)
     width, height, _ = (matrix @ [width-1, height-1, 1]).astype(int)
-    print ("height ", height, ", width ", width, ", area", height * width)
+    #print ("height ", height, ", width ", width, ", area", height * width)
 
     # fallback if rotation causes 0,0 for max height/width and is undefined
     if height == 0 or width == 0:
