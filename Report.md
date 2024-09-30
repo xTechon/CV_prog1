@@ -279,3 +279,27 @@ Applying the algorithm for the affine transformation will result in the images b
 
 \pagebreak
 # Program 3 - Image Blending
+
+Goals:
+
+1. Construct a Gaussian Image Pyramid
+2. Construct a Laplacian Image Pyramid
+3. Blend Images using a mask
+
+Gaussian Kernel:
+
+$$
+    \frac{1}{256}
+    \left [
+    \begin{matrix}
+        1 & 4 & 6 & 4 & 1 \\
+        4 & 16 & 24 & 16 & 4 \\
+        6 & 24 & 36 & 24 & 6 \\
+        4 & 16 & 24 & 16 & 4 \\
+        1 & 4 & 6 & 4 & 1
+    \end{matrix}
+    \right ]
+
+$$
+
+## Problem
