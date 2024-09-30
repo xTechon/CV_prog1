@@ -40,19 +40,19 @@ def reduceImg(src):
     return output
 
 # creates a gaussian pyramid of leves from an image src
-def gaussianPyramid(src, levels=2):
+def gaussianPyramid(src, levels=3):
     output = []
     output.append(src)
 
     temp = src
     for x in range(levels):
-
         temp = gaussianBlur(temp)
         temp = reduceImg(temp)
         output.append(copy.copy(temp))
 
     return output
 
+# creates a composite image with original image on left and pyramid layers on right
 def compositeImage(pyramid):
     # original image dimensions
     height, width, _ = pyramid[0].shape
