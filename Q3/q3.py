@@ -1,14 +1,14 @@
 import copy
-import time
 import numpy as np
 import imageio.v3 as iio
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndi
+#import cv2 as cv
 
 
 
 # function for applying a gaussian blur on an RGB image
-def gaussianBlur(src):
+def gaussianBlur(src, mult=1):
     # define a 5x5 gaussian kernel
     gaussian = np.array([[ 1, 4, 6, 4, 1 ],
                          [ 4, 16, 24, 16, 4 ],
@@ -19,15 +19,18 @@ def gaussianBlur(src):
     # normalize the kernel
     gaussian = gaussian / 256
 
+    # scale the guassian by a factor mult
+    gaussian = gaussian * mult
+
     # split into channels
     ch1 = src[:, :, 0]
     ch2 = src[:, :, 1]
     ch3 = src[:, :, 2]
 
     # convolve image and gaussian kernel
-    ch1 = ndi.convolve(ch1, gaussian, mode='nearest')
-    ch2 = ndi.convolve(ch2, gaussian, mode='nearest')
-    ch3 = ndi.convolve(ch3, gaussian, mode='nearest')
+    ch1 = ndi.convolve(ch1, gaussian, mode='constant')
+    ch2 = ndi.convolve(ch2, gaussian, mode='constant')
+    ch3 = ndi.convolve(ch3, gaussian, mode='constant')
 
     # recombine the image RGB channels
     output = np.dstack([ch1, ch2, ch3])
@@ -39,17 +42,40 @@ def reduceImg(src):
     output = src[::2, ::2, :]
     return output
 
-# creates a gaussian pyramid of leves from an image src
-def gaussianPyramid(src, levels=3):
-    output = []
-    output.append(src)
+# upsample image by 2
+def upsample(src):
+    height, width, _ = src.shape
+    output = np.zeros((2*height, 2*width, 3), dtype=np.uint8)
+    
+    # upsample
+    output[::2, ::2, :] = src
+    # blur image
+    output = gaussianBlur(output, 4)
+    return output
 
-    temp = src
-    for x in range(levels):
+
+# creates a the image pyramids of levels from an image src
+def imgPyramids(src, levels=3):
+    
+    output = {"gaussian": [], "laplacian": []}
+    output["gaussian"].append(src)
+
+    current = src
+    for _ in range(levels):
+        # set the next layer
+        temp = current
+
+        # Generate next Gaussian layer
         temp = gaussianBlur(temp)
         temp = reduceImg(temp)
-        output.append(copy.copy(temp))
+        output["gaussian"].append(copy.copy(temp))
 
+        # Generate next Laplacian layer
+        difference = upsample(temp)
+        difference = current - difference
+        output["laplacian"].append(copy.copy(difference))
+
+        current = temp        
     return output
 
 # creates a composite image with original image on left and pyramid layers on right
@@ -78,18 +104,30 @@ face1 = iio.imread('./face512.png')
 
 working_img = face1
 
-out = gaussianPyramid(working_img, 4)
-out1 = compositeImage(out)
+# create pyramids
+out = imgPyramids(working_img, 4)
+
+# create composite images
+out1 = compositeImage(out["gaussian"])
+out2 = compositeImage(out["laplacian"])
 
 # Plotting setup
-"""
 figure = plt.figure(figsize=(10,7))
 rows = 1
-columns = 3
+columns = 2
+
+"""
+figure.add_subplot(rows, columns, 1)
+plt.imshow(working_img)
+plt.title("Original Image")
+"""
 
 figure.add_subplot(rows, columns, 1)
-"""
 plt.imshow(out1)
 plt.title("Gaussian Pyramid")
+
+figure.add_subplot(rows, columns, 2)
+plt.imshow(out2)
+plt.title("Laplaccian Pyramid")
 
 plt.show()
