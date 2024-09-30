@@ -25,12 +25,12 @@ def gaussianBlur(src):
     ch3 = src[:, :, 2]
 
     # convolve image and gaussian kernel
-    out1 = ndi.convolve(ch1, gaussian, mode='nearest')
-    out2 = ndi.convolve(ch2, gaussian, mode='nearest')
-    out3 = ndi.convolve(ch3, gaussian, mode='nearest')
+    ch1 = ndi.convolve(ch1, gaussian, mode='nearest')
+    ch2 = ndi.convolve(ch2, gaussian, mode='nearest')
+    ch3 = ndi.convolve(ch3, gaussian, mode='nearest')
 
     # recombine the image RGB channels
-    output = np.dstack([out1, out2, out3])
+    output = np.dstack([ch1, ch2, ch3])
     return output
 
 # reduces an image by half
