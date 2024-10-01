@@ -284,7 +284,8 @@ Goals:
 
 1. Construct a Gaussian Image Pyramid
 2. Construct a Laplacian Image Pyramid
-3. Blend Images using a mask
+3. Perform normal image reconstruction
+4. Blend Images using a mask
 
 Gaussian Kernel:
 

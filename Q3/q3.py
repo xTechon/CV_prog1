@@ -75,8 +75,40 @@ def imgPyramids(src, levels=3):
         difference = current - difference
         output["laplacian"].append(copy.copy(difference))
 
-        current = temp        
+        current = temp
     return output
+
+# where src is the smallest image and laplacian is the pyramid
+def reconstructImg(src, laplacian):
+    current = src
+    for layer in reversed(laplacian):
+        print(current.shape)
+        temp = upsample(current)
+        temp = temp + layer
+        current = temp
+    return current
+
+
+# lowest lv layer of both images
+# the laplacian pyramid of both images
+# gaussian pyramid + 1 size of images
+# each input is a pyramid "pair"
+def imageBlend(pyramidA, pyramidB, mask):
+
+    # get the lowest layer of mask
+    current = pyramidA["gaussian"][-1]
+    # mask * A + (1-mask) * B
+    for layer, m in reversed(list(enumerate(mask["gaussian"][:-1]))):
+        print(m.shape)
+        l = pyramidA["laplacian"][layer] * (m/255) + (1-m / 255) * pyramidB["laplacian"][layer]
+        #lg = pyramidA["laplacian"][layer][:,:,1] * m[:,:,1] + (1-m[:,:,1]) * pyramidB["laplacian"][layer][:,:,1]
+        #lb = pyramidA["laplacian"][layer][:,:,2] * m[:,:,2] + (1-m[:,:,2]) * pyramidB["laplacian"][layer][:,:,2]
+
+        # Reconstruct into blended image
+        temp = upsample(current)
+        temp = temp + l
+        current = temp
+    return current
 
 # creates a composite image with original image on left and pyramid layers on right
 def compositeImage(pyramid):
@@ -100,34 +132,49 @@ def compositeImage(pyramid):
     return output
 
 # load image
-face1 = iio.imread('./face512.png')
+face1 = iio.imread('./face256.png')
+fruit1 = iio.imread('./A_Orange256.png')
+mask1 = iio.imread('./Mask256.png')
 
-working_img = face1
+working_img1 = face1
+working_img2 = fruit1
+working_img3 = mask1
 
 # create pyramids
-out = imgPyramids(working_img, 4)
+out1 = imgPyramids(working_img1, 4)
+out2 = imgPyramids(working_img2, 4)
+out3 = imgPyramids(working_img3, 4)
 
+out4 = imageBlend(out2, out1, out3)
 # create composite images
-out1 = compositeImage(out["gaussian"])
-out2 = compositeImage(out["laplacian"])
+#out1 = compositeImage(out["gaussian"])
+#out2 = compositeImage(out2["gaussian"])
+
+#out1 = reconstructImg(out["gaussian"][-1], out["laplacian"])
+
+
 
 # Plotting setup
 figure = plt.figure(figsize=(10,7))
 rows = 1
-columns = 2
+columns = 4
 
-"""
-figure.add_subplot(rows, columns, 1)
-plt.imshow(working_img)
-plt.title("Original Image")
-"""
 
 figure.add_subplot(rows, columns, 1)
-plt.imshow(out1)
-plt.title("Gaussian Pyramid")
+plt.imshow(out2["gaussian"][0])
+plt.title("Operand 1")
 
 figure.add_subplot(rows, columns, 2)
-plt.imshow(out2)
-plt.title("Laplaccian Pyramid")
+plt.imshow(out1["gaussian"][0])
+plt.title("Operand 2")
+
+figure.add_subplot(rows, columns, 3)
+plt.imshow(out3["gaussian"][0])
+plt.title("Mask")
+
+figure.add_subplot(rows, columns, 4)
+plt.imshow(out4)
+plt.title("Result")
+
 
 plt.show()
