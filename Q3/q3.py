@@ -175,8 +175,6 @@ def blendPyramids(white, black, mask):
         for channel, mask in enumerate(maskChannels):
             a = whiteChannels[channel]
             b = blackChannels[channel]
-            #am = a*mask
-            difference = (255-mask)
             out = a * (mask / 255) + (1 - (mask / 255)) * b
 
             # make sure out is ints
@@ -194,9 +192,6 @@ def blendPyramids(white, black, mask):
     output["laplacian"] = output["laplacian"][::-1]
 
     return output
-
-
-
 
 # Reconstruct an image from it's pyramids
 def collapsePyramid(pyramid):
