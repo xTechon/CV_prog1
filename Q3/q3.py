@@ -60,7 +60,8 @@ def upsample(src):
     # upsample
     output[::2, ::2] = src[:, :]
     # blur image
-    output = gaussianBlur(output * 4)
+    #output = gaussianBlur(output)
+    output = 4 * cv.GaussianBlur(output, (5,5), 0)
     return output
 
 
@@ -142,7 +143,7 @@ def pyramidBlend(pyramidA, pyramidB, mask):
     
     # current = np.zeros((base.shape[0], base.shape[1]))
     
-    output["gaussian"].append(current)
+    output["gaussian"].append(np.rint(current))
     # mask * A + (1-mask) * B
     for layer, m in reversed(list(enumerate(mask["gaussian"][:-1]))):
         """
@@ -171,7 +172,7 @@ def pyramidBlend(pyramidA, pyramidB, mask):
         # Reconstruct into blended pyramid
         #temp = upsample(current)
         #temp = temp + l
-        output["laplacian"].append(l)
+        output["laplacian"].append(np.rint(l))
 
     # reverse order for consistency
     output["laplacian"] = output["laplacian"][::-1]
